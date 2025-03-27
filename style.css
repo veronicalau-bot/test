@@ -1,0 +1,64 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #87CEEB;
+    overflow: hidden;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#gameCanvas {
+    border: 2px solid black;
+    width: 70vw; /* 70% of viewport width */
+    max-width: 70vh; /* Ensure it doesn't exceed 70% of viewport height */
+    height: auto;
+    aspect-ratio: 2 / 3; /* Maintain 400x600 ratio */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+#startScreen, #gameOverScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 20px;
+    font-family: 'Press Start 2P', cursive;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease, background-color 0.3s ease;
+    touch-action: manipulation;
+}
+
+button:hover, button:active {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+@media (max-width: 600px) {
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    #startScreen, #gameOverScreen {
+        gap: 15px;
+    }
+}
