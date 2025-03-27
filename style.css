@@ -11,14 +11,14 @@ body {
 
 #gameCanvas {
     border: 2px solid black;
-    width: 70vw; /* 70% of viewport width */
-    max-width: 70vh; /* Ensure it doesn't exceed 70% of viewport height */
+    width: 70vw;
+    max-width: 70vh;
     height: auto;
-    aspect-ratio: 2 / 3; /* Maintain 400x600 ratio */
+    aspect-ratio: 2 / 3;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-#startScreen, #gameOverScreen {
+#startScreen, #gameOverScreen, #questionScreen, #wrongAnswerScreen {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -27,6 +27,13 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+#questionText, #wrongAnswerText {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 18px;
+    max-width: 300px;
 }
 
 button {
@@ -58,7 +65,12 @@ button:active {
         font-size: 16px;
     }
 
-    #startScreen, #gameOverScreen {
+    #startScreen, #gameOverScreen, #questionScreen, #wrongAnswerScreen {
         gap: 15px;
+    }
+
+    #questionText, #wrongAnswerText {
+        font-size: 14px;
+        max-width: 250px;
     }
 }
