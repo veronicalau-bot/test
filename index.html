@@ -10,17 +10,24 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <div id="startScreen">
-        <button id="startButton">Start Game</button>
+        <div id="instructions">
+            <p>Tap or click to flap. Avoid pipes. </p>
+        </div>
+        <div id="startButtonContainer">
+            <button id="startButton">Start Game</button>
+        </div>
     </div>
-    <div id="gameOverScreen" style="display: none;">
+    <div id="gameOverScreen">
+        <p id="gameOverMessage"></p>
+        <p id="finalScoreText"></p>
         <button id="restartButton">Restart Game</button>
     </div>
-    <div id="questionScreen" style="display: none;">
+    <div id="questionScreen">
         <p id="questionText"></p>
         <button id="yesButton">Yes</button>
         <button id="noButton">No</button>
     </div>
-    <div id="wrongAnswerScreen" style="display: none;">
+    <div id="wrongAnswerScreen">
         <p id="wrongAnswerText"></p>
         <button id="nextQuestionButton">Next Question</button>
     </div>
