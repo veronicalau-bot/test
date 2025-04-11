@@ -42,25 +42,26 @@ let pipeFrequency = 90;
 let frameCount = 0;
 let gameState = "start";
 let score = 0;
-let countdown = 0; // Countdown timer in frames (60 FPS)
+let countdown = 0;
+let attempts = 15;
 
-// Questions array (15 questions)
+// Questions array
 const questions = [
-    { text: "Is the sky blue?", answer: true },
-    { text: "Can birds fly underwater?", answer: false },
-    { text: "Is 2 + 2 equal to 4?", answer: true },
-    { text: "Does the sun rise in the west?", answer: false },
-    { text: "Is water wet?", answer: true },
-    { text: "Can humans breathe in space?", answer: false },
-    { text: "Is a square a circle?", answer: false },
-    { text: "Does 5 equal 3 + 2?", answer: true },
-    { text: "Is ice hot?", answer: false },
-    { text: "Do dogs meow?", answer: false },
-    { text: "Is the moon made of cheese?", answer: false },
-    { text: "Can fish climb trees?", answer: false },
-    { text: "Is rain dry?", answer: false },
-    { text: "Does 10 divided by 2 equal 5?", answer: true },
-    { text: "Is fire cold?", answer: false }
+    { text: "Is rephrasing someone else's idea without citation acceptable?", answer: false, wrongMessage: "Nope. Proper citation is required for rephrasing someone else's idea." },
+    { text: "Does academic honesty apply only to written work?", answer: false, wrongMessage: "Nope. Academic honesty extends beyond written assignments. It applies to all format of academic work." },
+    { text: "Can accidental omission of a citation be considered plagiarism?", answer: true, wrongMessage: "Nope. Any missing of citations can be considered as plagiarism" },
+    { text: "Does plagiarism include copying images and data?", answer: true, wrongMessage: "Nope. You should provide proper citation to ALL formats of sources." },
+    { text: "Must you cite sources for common knowledge?", answer: false, wrongMessage: "Nope. Citing for common knowledge is not neccessary." },
+    { text: "Can you plagiarize your own previous work?", answer: true, wrongMessage: "Nope. Reusing your previous without proper citation can be considered as self-plagiarism." },
+    { text: "Are you allowed to use different citation styles in one work?", answer: false, wrongMessage: "Nope. You are not allowed to mix different citation styles (e.g., APA, Chicago, MLA) within the same work." },
+    { text: "Is paraphrasing with proper citation considered plagiarism?", answer: false, wrongMessage: "Nope. You can paraphrase the original idea in your own words as long as you provide proper citation." },
+    { text: "Can you be penalized for a first-time academic dishonesty offense?", answer: true, wrongMessage: "Nope. Breaching the academic honesty policy can lead to serious consequences and may result in disciplinary actions even for a first offense." },
+    { text: "Must you cite a source each time you use its information in the same work?", answer: true, wrongMessage: "Nope. You need to provide an in-text citation every time but you only include one entry in the reference list." },
+    { text: "Is using a translation without citation plagiarism?", answer: true, wrongMessage: "Nope. Using a translation without citation is also plagiarism." },
+    { text: "Can RefWorks help you reference sources?", answer: true, wrongMessage: "Nope. RefWorks can helps you to generate bibliographies and insert citations into your documents, streamlining the research and writing process." },
+    { text: "Does APA citation style require the publication year in every in-text citation?", answer: true, wrongMessage: "Nope. In APA style, the information of publication year is included in every citation." },
+    { text: "Is the title of a book italicized in an APA reference list entry?", answer: true, wrongMessage: "Nope. In APA style, the title of a book is italicized in the reference list." },
+    { text: "Can you use 'ibid.' in Chicago Author-Date style for repeated citations?", answer: false, wrongMessage: "Nope. 'ibid' is used in Chicago's Notes-Bibliography style" }
 ];
 let currentQuestionIndex = 0;
 
@@ -146,8 +147,11 @@ function resetGame() {
     pipes = [];
     frameCount = 0;
     score = 0;
-    gameState = "playing"; // Start immediately, no countdown
+    attempts = 15;
+    gameState = "playing";
     gameOverScreen.style.display = "none";
+    document.getElementById("gameOverMessage").textContent = "";
+    document.getElementById("finalScoreText").textContent = "";
     questionScreen.style.display = "none";
     wrongAnswerScreen.style.display = "none";
     createPipe();
@@ -161,9 +165,10 @@ function resumeGame() {
     bird.invincible = true;
     bird.invincibleTime = 180; // 3 seconds at 60 FPS
     countdown = 180; // 3 seconds countdown
-    gameState = "countdown"; // Start with countdown before resuming
+    gameState = "countdown";
     questionScreen.style.display = "none";
     wrongAnswerScreen.style.display = "none";
+    gameOverScreen.style.display = "none";
 }
 
 // Show next question
@@ -172,21 +177,39 @@ function showQuestion() {
     questionText.textContent = questions[currentQuestionIndex].text;
     wrongAnswerScreen.style.display = "none";
     questionScreen.style.display = "flex";
+    gameOverScreen.style.display = "none";
+    gameState = "question"; // Explicitly set state
+    console.log("Showing question:", questions[currentQuestionIndex].text, "State:", gameState);
 }
 
-// Handle wrong answer
+// Handle wrong answer with custom message
 function showWrongAnswer() {
-    wrongAnswerText.textContent = `Wrong! Correct answer: ${questions[currentQuestionIndex].answer ? "Yes" : "No"}`;
+    wrongAnswerText.textContent = questions[currentQuestionIndex].wrongMessage;
     questionScreen.style.display = "none";
     wrongAnswerScreen.style.display = "flex";
+    gameOverScreen.style.display = "none";
+    gameState = "wrong"; // Explicitly set state
+    console.log("Wrong answer screen shown, attempts:", attempts, "Text:", wrongAnswerText.textContent, "State:", gameState);
 }
 
 // Handle Yes/No answers
 function handleAnswer(userAnswer) {
+    console.log("Answer selected:", userAnswer, "Correct:", questions[currentQuestionIndex].answer, "State before:", gameState);
     if (userAnswer === questions[currentQuestionIndex].answer) {
+        console.log("Correct answer, resuming game");
         resumeGame();
     } else {
-        showWrongAnswer();
+        attempts--;
+        console.log("Wrong answer, attempts left:", attempts);
+        if (attempts <= 0) {
+            gameState = "finalGameOver";
+            gameOverScreen.style.display = "flex";
+            questionScreen.style.display = "none";
+            wrongAnswerScreen.style.display = "none";
+            console.log("Game over due to no attempts left, State:", gameState);
+        } else {
+            showWrongAnswer();
+        }
     }
 }
 
@@ -197,25 +220,29 @@ function gameLoop() {
 
     if (gameState === "start") {
         startScreen.style.display = "block";
+        gameOverScreen.style.display = "none";
+        questionScreen.style.display = "none";
+        wrongAnswerScreen.style.display = "none";
         ctx.fillStyle = "#FFD700";
         ctx.strokeStyle = "black";
         ctx.lineWidth = 2;
         ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
         ctx.strokeRect(bird.x, bird.y, bird.width, bird.height);
     } else if (gameState === "countdown") {
-        // Draw bird in starting position
+        gameOverScreen.style.display = "none";
+        questionScreen.style.display = "none";
+        wrongAnswerScreen.style.display = "none";
         ctx.fillStyle = "#FFD700";
         ctx.strokeStyle = "black";
         ctx.lineWidth = 2;
-        if (bird.flashState) { // Flash bird during countdown too
+        if (bird.flashState) {
             ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
             ctx.strokeRect(bird.x, bird.y, bird.width, bird.height);
         }
-        bird.flashState = !bird.flashState; // Toggle flash
+        bird.flashState = !bird.flashState;
 
-        // Draw countdown
         ctx.font = "40px 'Press Start 2P'";
-        const countdownText = Math.ceil(countdown / 60); // Convert frames to seconds
+        const countdownText = Math.ceil(countdown / 60);
         const textWidth = ctx.measureText(countdownText).width;
         ctx.fillStyle = "white";
         ctx.fillText(countdownText, 400 / 2 - textWidth / 2, 300);
@@ -227,16 +254,50 @@ function gameLoop() {
         if (countdown <= 0) {
             gameState = "playing";
         }
+    } else if (gameState === "finalGameOver") {
+        ctx.fillStyle = "black";
+        ctx.font = "16px 'Press Start 2P'";
+        const gameOverText = "Game Over";
+        const scoreText = `Score: ${score}`;
+        const attemptsText = `Attempts Left: ${attempts}`;
+        const gameOverWidth = ctx.measureText(gameOverText).width;
+        const scoreWidth = ctx.measureText(scoreText).width;
+        const attemptsWidth = ctx.measureText(attemptsText).width;
+        ctx.fillText(gameOverText, 400 / 2 - gameOverWidth / 2, 80);
+        ctx.fillText(scoreText, 400 / 2 - scoreWidth / 2, 120);
+        ctx.fillText(attemptsText, 400 / 2 - attemptsWidth / 2, 160);
+
+        gameOverScreen.style.display = "flex";
+        document.getElementById("gameOverMessage").textContent = "Game Over";
+        document.getElementById("finalScoreText").textContent = `Final Score: ${score}`;
+        questionScreen.style.display = "none";
+        wrongAnswerScreen.style.display = "none";
     } else if (gameState === "over") {
         ctx.fillStyle = "black";
         ctx.font = "16px 'Press Start 2P'";
         const scoreText = `Score: ${score}`;
+        const attemptsText = `Attempts Left: ${attempts}`;
         const scoreWidth = ctx.measureText(scoreText).width;
+        const attemptsWidth = ctx.measureText(attemptsText).width;
         ctx.fillText(scoreText, 400 / 2 - scoreWidth / 2, 100);
+        ctx.fillText(attemptsText, 400 / 2 - attemptsWidth / 2, 140);
 
+        gameOverScreen.style.display = "flex";
+        document.getElementById("gameOverMessage").textContent = "Answer to continue!";
+        document.getElementById("finalScoreText").textContent = `Score: ${score}`;
         showQuestion();
-        gameState = "question";
+    } else if (gameState === "question") {
+        gameOverScreen.style.display = "none";
+        questionScreen.style.display = "flex";
+        wrongAnswerScreen.style.display = "none";
+    } else if (gameState === "wrong") {
+        gameOverScreen.style.display = "none";
+        questionScreen.style.display = "none";
+        wrongAnswerScreen.style.display = "flex";
     } else if (gameState === "playing") {
+        gameOverScreen.style.display = "none";
+        questionScreen.style.display = "none";
+        wrongAnswerScreen.style.display = "none";
         bird.velocity += bird.gravity;
         bird.y += bird.velocity;
         bird.flapAngle = Math.min(Math.max(bird.velocity * 2, -20), 20);
@@ -251,7 +312,15 @@ function gameLoop() {
         }
 
         if (bird.y + bird.height > 550 || bird.y < 0) {
-            gameState = "over";
+            attempts--;
+            if (attempts <= 0) {
+                gameState = "finalGameOver";
+                gameOverScreen.style.display = "flex";
+                document.getElementById("gameOverMessage").textContent = "Game Over";
+                document.getElementById("finalScoreText").textContent = `Final Score: ${score}`;
+            } else {
+                gameState = "over";
+            }
         }
 
         ctx.save();
@@ -288,7 +357,15 @@ function gameLoop() {
             ctx.strokeRect(pipes[i].x, pipes[i].bottomY, pipes[i].width, 600 - pipes[i].bottomY);
 
             if (checkCollision(bird, pipes[i])) {
-                gameState = "over";
+                attempts--;
+                if (attempts <= 0) {
+                    gameState = "finalGameOver";
+                    gameOverScreen.style.display = "flex";
+                    document.getElementById("gameOverMessage").textContent = "Game Over";
+                    document.getElementById("finalScoreText").textContent = `Final Score: ${score}`;
+                } else {
+                    gameState = "over";
+                }
             }
 
             if (pipes[i].x + pipes[i].width < 0) {
@@ -296,14 +373,23 @@ function gameLoop() {
             }
         }
 
-        ctx.font = "20px 'Press Start 2P'";
+        ctx.font = "16px 'Press Start 2P'";
+        ctx.lineWidth = 1;
         const scoreText = `Score: ${score}`;
+        const attemptsText = `Attempts: ${attempts}`;
         const scoreWidth = ctx.measureText(scoreText).width;
-        const scorePadding = 10;
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.fillRect(10 - scorePadding, 30 - 20, scoreWidth + scorePadding * 2, 30);
+        const attemptsWidth = ctx.measureText(attemptsText).width;
+        const scorePadding = 8;
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillRect(10 - scorePadding, 30 - 16, scoreWidth + scorePadding * 2, 24);
         ctx.fillStyle = "black";
         ctx.fillText(scoreText, 10, 30);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillRect(10 - scorePadding, 60 - 16, attemptsWidth + scorePadding * 2, 24);
+        ctx.fillStyle = "black";
+        ctx.fillText(attemptsText, 10, 60);
     }
 
     requestAnimationFrame(gameLoop);
@@ -325,6 +411,7 @@ canvas.addEventListener("click", flapHandler);
 function startHandler(e) {
     e.preventDefault();
     startScreen.style.display = "none";
+    attempts = 15;
     resetGame();
 }
 startButton.addEventListener("click", startHandler);
@@ -334,23 +421,44 @@ startButton.addEventListener("touchstart", startHandler);
 function restartHandler(e) {
     e.preventDefault();
     resetGame();
+    gameState = "start";
+    startScreen.style.display = "block";
+    gameOverScreen.style.display = "none";
+    questionScreen.style.display = "none";
+    wrongAnswerScreen.style.display = "none";
 }
 restartButton.addEventListener("click", restartHandler);
 restartButton.addEventListener("touchstart", restartHandler);
 
 // Yes/No button handlers
-yesButton.addEventListener("click", () => handleAnswer(true));
-yesButton.addEventListener("touchstart", (e) => { e.preventDefault(); handleAnswer(true); });
-noButton.addEventListener("click", () => handleAnswer(false));
-noButton.addEventListener("touchstart", (e) => { e.preventDefault(); handleAnswer(false); });
+yesButton.addEventListener("click", () => {
+    console.log("Yes button clicked");
+    handleAnswer(true);
+});
+yesButton.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    console.log("Yes button touched");
+    handleAnswer(true);
+});
+noButton.addEventListener("click", () => {
+    console.log("No button clicked");
+    handleAnswer(false);
+});
+noButton.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    console.log("No button touched");
+    handleAnswer(false);
+});
 
 // Next question button handler
 nextQuestionButton.addEventListener("click", () => {
+    console.log("Next Question clicked");
     wrongAnswerScreen.style.display = "none";
     showQuestion();
 });
 nextQuestionButton.addEventListener("touchstart", (e) => {
     e.preventDefault();
+    console.log("Next Question touched");
     wrongAnswerScreen.style.display = "none";
     showQuestion();
 });
