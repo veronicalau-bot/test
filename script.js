@@ -1,8 +1,6 @@
-// Get the canvas and context
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Set canvas size dynamically
 function resizeCanvas() {
     const aspectRatio = 600 / 400;
     const targetWidth = window.innerWidth * 0.7;
@@ -20,12 +18,11 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// Bird properties
 let bird = {
     x: 50,
     y: 300,
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     gravity: 0.6,
     lift: -12,
     velocity: 0,
@@ -35,7 +32,6 @@ let bird = {
     flashState: true
 };
 
-// Pipe properties
 let pipes = [];
 let pipeGap = 150;
 let pipeFrequency = 90;
@@ -45,7 +41,6 @@ let score = 0;
 let countdown = 0;
 let attempts = 15;
 
-// Questions array
 const questions = [
     { text: "Is rephrasing someone else's idea without citation acceptable?", answer: false, wrongMessage: "Nope. Proper citation is required for rephrasing someone else's idea." },
     { text: "Does academic honesty apply only to written work?", answer: false, wrongMessage: "Nope. Academic honesty extends beyond written assignments. It applies to all format of academic work." },
@@ -65,7 +60,6 @@ const questions = [
 ];
 let currentQuestionIndex = 0;
 
-// UI elements
 const startScreen = document.getElementById("startScreen");
 const gameOverScreen = document.getElementById("gameOverScreen");
 const questionScreen = document.getElementById("questionScreen");
@@ -78,7 +72,6 @@ const nextQuestionButton = document.getElementById("nextQuestionButton");
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
 
-// Function to draw the background
 function drawBackground() {
     const gradient = ctx.createLinearGradient(0, 0, 0, 600);
     gradient.addColorStop(0, "#87CEEB");
@@ -89,7 +82,6 @@ function drawBackground() {
     ctx.fillRect(0, 550, 400, 50);
 }
 
-// Function to create a new pipe
 function createPipe() {
     let pipeHeight = Math.floor(Math.random() * (600 - pipeGap - 100)) + 50;
     pipes.push({
@@ -102,7 +94,6 @@ function createPipe() {
     });
 }
 
-// Check collision between bird and pipe
 function checkCollision(bird, pipe) {
     if (bird.invincible) return false;
     let birdRight = bird.x + bird.width;
@@ -118,7 +109,6 @@ function checkCollision(bird, pipe) {
     return false;
 }
 
-// Function to wrap text into multiple lines
 function wrapText(text, maxWidth) {
     const words = text.split(" ");
     const lines = [];
@@ -137,7 +127,6 @@ function wrapText(text, maxWidth) {
     return lines;
 }
 
-// Reset game state fully (no countdown)
 function resetGame() {
     bird.y = 300;
     bird.velocity = 0;
@@ -157,42 +146,38 @@ function resetGame() {
     createPipe();
 }
 
-// Resume game with countdown and invincibility
 function resumeGame() {
     bird.y = 300;
     bird.velocity = 0;
     bird.flapAngle = 0;
     bird.invincible = true;
-    bird.invincibleTime = 180; // 3 seconds at 60 FPS
-    countdown = 180; // 3 seconds countdown
+    bird.invincibleTime = 180;
+    countdown = 180;
     gameState = "countdown";
     questionScreen.style.display = "none";
     wrongAnswerScreen.style.display = "none";
     gameOverScreen.style.display = "none";
 }
 
-// Show next question
 function showQuestion() {
     currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
     questionText.textContent = questions[currentQuestionIndex].text;
     wrongAnswerScreen.style.display = "none";
     questionScreen.style.display = "flex";
     gameOverScreen.style.display = "none";
-    gameState = "question"; // Explicitly set state
+    gameState = "question";
     console.log("Showing question:", questions[currentQuestionIndex].text, "State:", gameState);
 }
 
-// Handle wrong answer with custom message
 function showWrongAnswer() {
     wrongAnswerText.textContent = questions[currentQuestionIndex].wrongMessage;
     questionScreen.style.display = "none";
     wrongAnswerScreen.style.display = "flex";
     gameOverScreen.style.display = "none";
-    gameState = "wrong"; // Explicitly set state
+    gameState = "wrong";
     console.log("Wrong answer screen shown, attempts:", attempts, "Text:", wrongAnswerText.textContent, "State:", gameState);
 }
 
-// Handle Yes/No answers
 function handleAnswer(userAnswer) {
     console.log("Answer selected:", userAnswer, "Correct:", questions[currentQuestionIndex].answer, "State before:", gameState);
     if (userAnswer === questions[currentQuestionIndex].answer) {
@@ -213,7 +198,6 @@ function handleAnswer(userAnswer) {
     }
 }
 
-// Game loop
 function gameLoop() {
     ctx.clearRect(0, 0, 400, 600);
     drawBackground();
@@ -223,21 +207,21 @@ function gameLoop() {
         gameOverScreen.style.display = "none";
         questionScreen.style.display = "none";
         wrongAnswerScreen.style.display = "none";
-        ctx.fillStyle = "#FFD700";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-        ctx.strokeRect(bird.x, bird.y, bird.width, bird.height);
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("😵‍💫", bird.x + bird.width / 2, bird.y + bird.height / 2);
     } else if (gameState === "countdown") {
         gameOverScreen.style.display = "none";
         questionScreen.style.display = "none";
         wrongAnswerScreen.style.display = "none";
-        ctx.fillStyle = "#FFD700";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
         if (bird.flashState) {
-            ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-            ctx.strokeRect(bird.x, bird.y, bird.width, bird.height);
+            ctx.font = "24px Arial";
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("😵‍💫", bird.x + bird.width / 2, bird.y + bird.height / 2);
         }
         bird.flashState = !bird.flashState;
 
@@ -255,33 +239,12 @@ function gameLoop() {
             gameState = "playing";
         }
     } else if (gameState === "finalGameOver") {
-        ctx.fillStyle = "black";
-        ctx.font = "16px 'Press Start 2P'";
-        const gameOverText = "Game Over";
-        const scoreText = `Score: ${score}`;
-        const attemptsText = `Attempts Left: ${attempts}`;
-        const gameOverWidth = ctx.measureText(gameOverText).width;
-        const scoreWidth = ctx.measureText(scoreText).width;
-        const attemptsWidth = ctx.measureText(attemptsText).width;
-        ctx.fillText(gameOverText, 400 / 2 - gameOverWidth / 2, 80);
-        ctx.fillText(scoreText, 400 / 2 - scoreWidth / 2, 120);
-        ctx.fillText(attemptsText, 400 / 2 - attemptsWidth / 2, 160);
-
         gameOverScreen.style.display = "flex";
         document.getElementById("gameOverMessage").textContent = "Game Over";
         document.getElementById("finalScoreText").textContent = `Final Score: ${score}`;
         questionScreen.style.display = "none";
         wrongAnswerScreen.style.display = "none";
     } else if (gameState === "over") {
-        ctx.fillStyle = "black";
-        ctx.font = "16px 'Press Start 2P'";
-        const scoreText = `Score: ${score}`;
-        const attemptsText = `Attempts Left: ${attempts}`;
-        const scoreWidth = ctx.measureText(scoreText).width;
-        const attemptsWidth = ctx.measureText(attemptsText).width;
-        ctx.fillText(scoreText, 400 / 2 - scoreWidth / 2, 100);
-        ctx.fillText(attemptsText, 400 / 2 - attemptsWidth / 2, 140);
-
         gameOverScreen.style.display = "flex";
         document.getElementById("gameOverMessage").textContent = "Answer to continue!";
         document.getElementById("finalScoreText").textContent = `Score: ${score}`;
@@ -326,12 +289,12 @@ function gameLoop() {
         ctx.save();
         ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
         ctx.rotate((bird.flapAngle * Math.PI) / 180);
-        ctx.fillStyle = "#FFD700";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         if (!bird.invincible || bird.flashState) {
-            ctx.fillRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
-            ctx.strokeRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
+            ctx.fillText("😵‍💫", 0, 0);
         }
         ctx.restore();
 
@@ -374,28 +337,28 @@ function gameLoop() {
         }
 
         ctx.font = "16px 'Press Start 2P'";
-        ctx.lineWidth = 1;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
         const scoreText = `Score: ${score}`;
         const attemptsText = `Attempts: ${attempts}`;
         const scoreWidth = ctx.measureText(scoreText).width;
         const attemptsWidth = ctx.measureText(attemptsText).width;
-        const scorePadding = 8;
+        const padding = 8;
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.fillRect(10 - scorePadding, 30 - 16, scoreWidth + scorePadding * 2, 24);
+        ctx.fillRect(5 - padding, 20 - 12, scoreWidth + padding * 2, 24);
         ctx.fillStyle = "black";
-        ctx.fillText(scoreText, 10, 30);
+        ctx.fillText(scoreText, 5, 20);
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.fillRect(10 - scorePadding, 60 - 16, attemptsWidth + scorePadding * 2, 24);
+        ctx.fillRect(5 - padding, 40 - 12, attemptsWidth + padding * 2, 24);
         ctx.fillStyle = "black";
-        ctx.fillText(attemptsText, 10, 60);
+        ctx.fillText(attemptsText, 5, 40);
     }
 
     requestAnimationFrame(gameLoop);
 }
 
-// Flap handler
 function flapHandler(e) {
     e.preventDefault();
     if (gameState === "playing") {
@@ -407,7 +370,6 @@ function flapHandler(e) {
 canvas.addEventListener("touchstart", flapHandler);
 canvas.addEventListener("click", flapHandler);
 
-// Start button handler
 function startHandler(e) {
     e.preventDefault();
     startScreen.style.display = "none";
@@ -417,7 +379,6 @@ function startHandler(e) {
 startButton.addEventListener("click", startHandler);
 startButton.addEventListener("touchstart", startHandler);
 
-// Restart button handler
 function restartHandler(e) {
     e.preventDefault();
     resetGame();
@@ -430,7 +391,6 @@ function restartHandler(e) {
 restartButton.addEventListener("click", restartHandler);
 restartButton.addEventListener("touchstart", restartHandler);
 
-// Yes/No button handlers
 yesButton.addEventListener("click", () => {
     console.log("Yes button clicked");
     handleAnswer(true);
@@ -450,7 +410,6 @@ noButton.addEventListener("touchstart", (e) => {
     handleAnswer(false);
 });
 
-// Next question button handler
 nextQuestionButton.addEventListener("click", () => {
     console.log("Next Question clicked");
     wrongAnswerScreen.style.display = "none";
@@ -463,5 +422,4 @@ nextQuestionButton.addEventListener("touchstart", (e) => {
     showQuestion();
 });
 
-// Initial setup
 gameLoop();
