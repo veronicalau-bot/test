@@ -62,22 +62,41 @@ body {
     text-align: center;
     display: none;
     flex-direction: column;
-    gap: 30px;
     z-index: 10;
+}
+
+#gameOverScreen {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border: 2px solid black;
+    gap: 30px;
+}
+
+#questionScreen {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border: 2px solid black;
+    gap: 20px;
 }
 
 #wrongAnswerScreen {
     background-color: rgba(255, 0, 0, 0.8);
     padding: 20px;
     border: 2px solid black;
+    gap: 30px;
 }
 
-#questionText, #wrongAnswerText {
+#questionText, #wrongAnswerText, #answerPrompt {
     color: white;
     text-shadow: 1px 1px 2px black, 0 0 5px darkblue;
     font-family: Arial, sans-serif;
     font-size: 25px;
     max-width: 300px;
+    margin: 0;
+}
+
+#answerPrompt {
+    font-size: 18px;
 }
 
 #gameOverMessage, #finalScoreText {
@@ -130,5 +149,13 @@ button:active {
         font-size: 16px;
         max-width: 260px;
         line-height: 1.3;
+    }
+
+    #questionText, #wrongAnswerText, #answerPrompt {
+        font-size: 20px;
+    }
+
+    #answerPrompt {
+        font-size: 14px;
     }
 }
