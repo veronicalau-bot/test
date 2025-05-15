@@ -40,18 +40,19 @@ let gameState = "start";
 let score = 0;
 let countdown = 0;
 let attempts = 15;
+let finalGameOverTriggered = false;
 
 const questions = [
     { text: "Is rephrasing someone else's idea without citation acceptable?", answer: false, wrongMessage: "Nope. Proper citation is required for rephrasing someone else's idea." },
     { text: "Does academic honesty apply only to written work?", answer: false, wrongMessage: "Nope. Academic honesty extends beyond written assignments. It applies to all format of academic work." },
     { text: "Can accidental omission of a citation be considered plagiarism?", answer: true, wrongMessage: "Nope. Any missing of citations can be considered as plagiarism" },
     { text: "Does plagiarism include copying images and data?", answer: true, wrongMessage: "Nope. You should provide proper citation to ALL formats of sources." },
-    { text: "Must you cite sources for common knowledge?", answer: false, wrongMessage: "Nope. Citing for common knowledge is not neccessary." },
-    { text: "Can you plagiarize your own previous work?", answer: true, wrongMessage: "Nope. Reusing your previous without proper citation can be considered as self-plagiarism." },
+    { text: "Do you need to cite sources for common knowledge?", answer: false, wrongMessage: "Nope. Citing for common knowledge is not neccessary." },
+    { text: "Can you plagiarize your own previous work?", answer: true, wrongMessage: "Nope. Reusing your previous work without proper citation can be considered as self-plagiarism." },
     { text: "Are you allowed to use different citation styles in one work?", answer: false, wrongMessage: "Nope. You are not allowed to mix different citation styles (e.g., APA, Chicago, MLA) within the same work." },
-    { text: "Is paraphrasing with proper citation considered plagiarism?", answer: false, wrongMessage: "Nope. You can paraphrase the original idea in your own words as long as you provide proper citation." },
+    { text: "Is paraphrasing without proper citation considered plagiarism?", answer: true, wrongMessage: "Nope. Even if you paraphrase the original idea in your own words, proper citation is necessary to avoid plagiarism." },
     { text: "Can you be penalized for a first-time academic dishonesty offense?", answer: true, wrongMessage: "Nope. Breaching the academic honesty policy can lead to serious consequences and may result in disciplinary actions even for a first offense." },
-    { text: "Must you cite a source each time you use its information in the same work?", answer: true, wrongMessage: "Nope. You need to provide an in-text citation every time but you only include one entry in the reference list." },
+    { text: "Do you need to cite the same source each time you use its information in the same work?", answer: true, wrongMessage: "Nope. You need to provide an in-text citation every time but you only include one entry in the reference list." },
     { text: "Is using a translation without citation plagiarism?", answer: true, wrongMessage: "Nope. Using a translation without citation is also plagiarism." },
     { text: "Can RefWorks help you reference sources?", answer: true, wrongMessage: "Nope. RefWorks can helps you to generate bibliographies and insert citations into your documents, streamlining the research and writing process." },
     { text: "Does APA citation style require the publication year in every in-text citation?", answer: true, wrongMessage: "Nope. In APA style, the information of publication year is included in every citation." },
@@ -143,6 +144,7 @@ function resetGame() {
     document.getElementById("finalScoreText").textContent = "";
     questionScreen.style.display = "none";
     wrongAnswerScreen.style.display = "none";
+    finalGameOverTriggered = false; // Reset the flag here
     createPipe();
 }
 
@@ -239,11 +241,20 @@ function gameLoop() {
             gameState = "playing";
         }
     } else if (gameState === "finalGameOver") {
-        gameOverScreen.style.display = "flex";
-        document.getElementById("gameOverMessage").textContent = "Game Over";
-        document.getElementById("finalScoreText").textContent = `Final Score: ${score}`;
-        questionScreen.style.display = "none";
-        wrongAnswerScreen.style.display = "none";
+    gameOverScreen.style.display = "flex";
+    document.getElementById("gameOverMessage").textContent = "Game Over";
+    document.getElementById("finalScoreText").textContent = `Final Score: ${score}`;
+    questionScreen.style.display = "none";
+    wrongAnswerScreen.style.display = "none";
+    // Send the score to Google Analytics once
+    if (!finalGameOverTriggered && typeof gtag === 'function') {
+        gtag('event', 'game_over', {
+            'event_category': 'game',
+            'event_label': 'final_score',
+            'value': score
+        });
+        finalGameOverTriggered = true;
+    }
     } else if (gameState === "over") {
         gameOverScreen.style.display = "flex";
         document.getElementById("gameOverMessage").textContent = "Answer to continue!";
